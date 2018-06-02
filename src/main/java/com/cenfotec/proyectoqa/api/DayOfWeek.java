@@ -18,6 +18,10 @@ public enum DayOfWeek {
         return DAYS_IN_WEEK[index];
     }
 
+    /**
+     *
+     * @return hhh
+     */
     public static int daysInWeek() {
         return DAYS_IN_WEEK.length;
     }

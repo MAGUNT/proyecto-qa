@@ -1,3 +1,4 @@
+import com.cenfotec.proyectoqa.api.DayOfWeek;
 import com.cenfotec.proyectoqa.api.GregorianDate;
 import com.cenfotec.proyectoqa.api.Month;
 
@@ -7,11 +8,13 @@ import java.util.stream.IntStream;
 
 public class Main {
 
+
     public static void main(String[] args) {
-        int year = 4344;
-        int day = 23;
-        Month m = Month.APRIL;
-        int offset = -1004580;
+        int year = 0;
+        int day = 1;
+        Month m = Month.JANUARY;
+        int offset = 0;
+
 
         GregorianDate d = new GregorianDate(day, m, year);
         LocalDate d2 = LocalDate.of(year, m.toNumber(), day);

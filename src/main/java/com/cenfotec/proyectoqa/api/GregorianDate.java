@@ -66,6 +66,136 @@ public final class GregorianDate implements Date {
         return  days;
     }
 
+    /***
+     * <p>  Este método se basa en un algoritmo de Gauss para encontrar el día de la semana del 1 de enero de un año.
+     * Lo que nos importa en este algoritmo es el desfase producido por los años y meses según un punto de referencia.
+     * Para poder explicar mejor este algoritmo, definimos a la función \(Pe :\mathbb{Z} \mapsto \left \{ 0,1,2,..,6 \right \}\)
+     * que calcula el día de la semana del primero de enero, según un año. El 0 corresponde al domingo, 1 a lunes etc.
+     * También definimos c y g como \(y= 100\cdot c+g\).
+     * Antes de explicar el código se debe entender las siguientes propiedades del calendario gregoriano:</p>
+     *
+     * <ul>
+     *     <li>
+     *         <p>Hay una periodicidad de 400 años esto quiere decir que \(Pe(y) = Pe(y + i\cdot 400) \forall i\in\mathbb{Z}\).
+     *             Podemos explicar porque existe esta periodicidad verificando cuanto desfasé hay en 100 años.
+     *             Primero vemos que la contribución de un año no bisiesto es \(365\equiv 1 \thinspace mod \thinspace 7\),
+     *             por lo tanto cada año agrega un desfase de 1. Como hay 24 días bisiestos en 100 años tenemos que
+     *             \(24 +100\equiv 5 \thinspace mod \thinspace 7\) o en otras palabras cada 100 años hay un desfase de 5 días.
+     *             Finalmente, para 400 tenemos que \(4\cdot 5+1 \equiv 0 \thinspace mod \thinspace 7\),
+     *             dentro de la formula anterior se agrega 1 para tomar en cuenta el año bisiesto que es
+     *             divisible entre 400, que debe estar dentro de ese rango.
+     *             Tomando lo anterior en cuenta podemos calcular el desfase producido por el siglo con la siguiente función:</p>
+     *
+     *             <pre><code class="language-java">
+     *                private int cycleOffset(final int c) {
+     *                    return 5 * Math.floorMod(c, 4);
+     *                }
+     *             </code></pre>
+     *
+     *     </li>
+     *
+     *     <li>
+     *         Podemos calcular el número de años bisiestos adentro de un siglo con la siguiente función: \(f(g)=\left\lfloor\dfrac{g}{4}\right\rfloor\).
+     *         Esta fórmula funciona debido a que un año que es divisible entre 4 y no 100, es bisiesto. Como cada año contribuye a un día de desfase,
+     *         para calcular el desfase total ocasionado por g podemos utilizar la siguiente función:
+     *
+     *         <pre><code class="language-java">
+     *             private int centuryReminderOffset(final int dateYear) {
+     *                 int g = Math.floorMod(dateYear , 100);
+     *                 int centuryLeapYears = (g / 4);
+     *                 return g + centuryLeapYears;
+     *             }
+     *         </code></pre>
+     *
+     *     </li>
+     * </ul>
+     *
+     *<p>Podemos utilizar estas dos funciones anteriores para definir \(Pe(y)\) en código:</p>
+     * <pre><code class="language-java">
+     *       public int firstOfJanuary(int year) {
+     *         final int c  = Math.floorDiv(year, 100);
+     *         return (centuryReminderOffset(year) + cycleOffset(c)) % 7;
+     *     }
+     * </code></pre>
+     * <p>
+     *     Esta función calcula cero para el año cero, pero según el calendario gregoriano debería ser sábado.
+     *     Esto se debe a que esta función es incorrecta para cualquier año bisiesto, porque el primero de enero
+     *     es antes de marzo y estamos contando este año como bisiesto. Por esta razón debemos redefinir g y c.
+     * </p>
+     * <p>
+     *     Para extender este algoritmo debemos tomar en cuenta que dentro de un año bisiesto hay un incremento del desfase solo si el mes (m) es mayor a febrero.
+     *     Por eso le restamos 1 al año cuando el mes es menor o igual a febrero.
+     *     Para \(m= 1,2,\cdots,12\), definimos el siglo (c) y los dos últimos dígitos de un año (g) de la siguiente manera:
+     * </p>
+     * <ul  style="list-style-type: none;">
+     *     <li>
+     *         Para \(m\geqslant 3\)  tenemos que \(y= 100\cdot c+g\).
+     *     </li>
+     *     <li>
+     *         Para \(m= 1,2\)  tenemos que \(y-1= 100\cdot c+g\).
+     *     </li>
+     *     <li>
+     *         Talque \(0\leq g\leq 99\)
+     *     </li>
+     * </ul>
+     *
+     * <p>Finalmente para compensar el hecho de que estamos calculando el año anterior, agregamos 1 a la funcion:</p>
+     *  <pre><code class="language-java">
+     *     public int firstOfJanuary(int year) {
+     *         final int yearCopy =  year - 1;
+     *         final int c  = Math.floorDiv(yearCopy, 100);
+     *         return 1 + (centuryReminderOffset(yearCopy) + cycleOffset(c)) % 7;
+     *     }
+     *  </code></pre>
+     *  <p>
+     *      Para finalizar calculamos el desfase de los meses. Definimos la función \(dm: \left \{ 1,2,3 ...,12 \right \}\mapsto \left \{ 1,2,3 ...,31 \right \}\)
+     *      para determinar los días que contiene un mes. Luego definimos los días acumulados de un mes como \(a(m) = \sum_{i=1}^{m-1}dm(i)\).
+     *      Tenemos que restar 1 al acumulado de todos los meses mayores a febrero, porque vamos a sumar los días del mes. Recordemos
+     *      que cuando \(y= 100\cdot c+g\) los días del mes empiezan en cero. El código seria el siguiente:
+     *  </p>
+     *  <pre><code class="language-java">
+     *      private int monthOffset(final int month) {
+     *         return a(month) - (2 &lt; month ? 1 : 0);
+     *      }
+     *  </code></pre>
+     *  <p>El modulo con respecto a 7 de este código es equivalente a \(\left\lfloor 2.6 \cdot m +0.2 \right\rfloor\) ,si tomamos a marzo como el mes número 1.
+     *  Recopilando lo mencionado, a continuación, se muestra el código para calcular el día de la semana correspondiente a una fecha:</p>
+     *
+     *  <pre><code class="language-java">
+     *      public DayOfWeek getDayOfWeek2(final int day, final int month, final int year) {
+     *          final int yearCopy = year - (month &lt; 3 ? 1 : 0);
+     *          final int century  = Math.floorDiv(yearCopy, 100);
+     *          return  (day
+     *                  + cycleOffset(century)
+     *                  + monthOffset(month)
+     *                  + centuryReminderOffset(yearCopy))
+     *                  % DayOfWeek.daysInWeek();
+     *      }
+     *  </code></pre>
+     *
+     *  <p> Nota: Se utiliza Math.floorMod para remplazar el operador % ya que para valores negativos del año (A pesar de que solo vamos a usar años
+     *  mayores a 1582) queremos que el modulo sea positivo, por ejemplo: </p>
+     *
+     *      <pre><code class="language-java">
+     *          -48 % 5; // -3
+     *          Math.floorMod(-48 , 5); // 2
+     *      </code></pre>
+     *
+     *  <p> Además, se utiliza Math.floorDiv(yearCopy, CENTURY) ya que la división normal trunca hacia cero mientras que esta operación
+     *  trunca hacia el valor menor. (Igual esto es solo importante para años menores a cero) por ejemplo: </p>
+     *       <pre><code class="language-java">
+     *           Math.floorDiv(-4, 100); // -1
+     *           -4 / 100; // 0
+     *       </code></pre>
+     * <p>Esto es importante para calcular posteriormente el desfase del ciclo, por ejemplo: </p>
+     *       <pre><code class="language-java">
+     *           Math.floorMod(-1, 4); // 3
+     *       </code></pre>
+     *
+     * @return Día correspondiente a la fecha gregoriana.
+     *
+     *
+     */
     public DayOfWeek getDayOfWeek() {
         final int yearCopy = year - (!greaterThanFebruary(month) ? 1 : 0);
         final int century  = Math.floorDiv(yearCopy, CENTURY);
@@ -91,26 +221,8 @@ public final class GregorianDate implements Date {
         return CENTURY_OFFSET * Math.floorMod(century, CENTURY_INTERVAL);
     }
 
-    /***
-     * Nota: Se utiliza  Math.floorMod para replazar el operador % ya que para valores negativos del año (
-     * A pesar de que solo vamos a usar años mayores a 1582) queremos que el modulo sea positivo, por ejemplo
-     *
-     *  -48 % 5 == -3
-     *  Math.floorMod(-48 , 5) == 2
-     *
-     *  Ademas se utiliza Math.floorDiv(yearCopy, CENTURY) ya que la divicion normal trunca hacia cero
-     *  mientras que esta operacion trunca hacia el valor menor. (Igual esto es solo importante para años menores a cero)
-     *  por ejemplo:
-     *
-     *  Math.floorDiv(-4, 100) == -1
-     *  -4 / 100 == 0
-     *
-     *  Esto es importante para calcular posteriormente el desface del ciclo por ejemplo
-     *  Math.floorMod(-1, 4) == 3 el cual es el valor esperado.
-     * @return
-     */
-    private int centuryReminderOffset(final int year) {
-        int centuryRem       = Math.floorMod(year , CENTURY);
+    private int centuryReminderOffset(final int dateYear) {
+        int centuryRem       = Math.floorMod(dateYear , CENTURY);
         int centuryLeapYears = (centuryRem / LEAP_YEAR_INTERVAL);
         return centuryRem + centuryLeapYears;
     }
@@ -118,7 +230,6 @@ public final class GregorianDate implements Date {
     private int monthOffset(final Month month) {
         return month.getAccumulatedDays()
                 - (greaterThanFebruary(month) ? 1 : 0);
-
     }
 
     @Override
@@ -126,13 +237,4 @@ public final class GregorianDate implements Date {
         return String.format("(%d, %s, %d)",
                 day, month.toNumber(), year);
     }
-
-    /*Mejor usar tabla*/
-    /*
-    private int monthOffset(int month) {
-        double rotatedMonth = (double) ((month + 9) % NUM_MONTH + 1);
-        return (int) Math.floor(2.6d * rotatedMonth - 0.2d);
-    }
-    */
-
 }
