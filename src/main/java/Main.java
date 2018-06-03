@@ -1,26 +1,23 @@
-import com.cenfotec.proyectoqa.api.DayOfWeek;
-import com.cenfotec.proyectoqa.api.GregorianDate;
+import com.cenfotec.proyectoqa.api.Date;
 import com.cenfotec.proyectoqa.api.Month;
-
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.stream.IntStream;
 
 public class Main {
 
 
     public static void main(String[] args) {
-        int year = 0;
-        int day = 1;
-        Month m = Month.JANUARY;
-        int offset = 0;
+        int year = 1600;
+        int day = 30;
+        Month m = Month.NOVEMBER;
+        long offset = 0;
 
+        System.out.println(Month.FEBRUARY.getDays());
 
-        GregorianDate d = new GregorianDate(day, m, year);
+        Date d = Date.of(year, m, day);
         LocalDate d2 = LocalDate.of(year, m.toNumber(), day);
 
         System.out.println(d.addDays(offset));
-        System.out.println(d2.minusDays(-offset));
+        System.out.println(d2.plusDays(offset));
 
         System.out.println(d.getDayOfWeek());
         System.out.println(d2.getDayOfWeek());

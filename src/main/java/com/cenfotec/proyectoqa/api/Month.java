@@ -49,7 +49,7 @@ public enum Month {
     }
 
     public Month previous() {
-       return offset(-1);
+        return offset(-1);
     }
 
     public Month next() {
