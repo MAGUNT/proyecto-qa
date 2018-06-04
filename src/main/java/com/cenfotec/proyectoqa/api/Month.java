@@ -1,36 +1,45 @@
 package com.cenfotec.proyectoqa.api;
 
+import java.util.Arrays;
+
 public enum Month {
-    JANUARY,
-    FEBRUARY,
-    MARCH,
-    APRIL,
-    MAY,
-    JUNE,
-    JULY,
-    AUGUST,
-    SEPTEMBER,
-    OCTOBER,
-    NOVEMBER,
-    DECEMBER;
+    JANUARY(31),
+    FEBRUARY(28),
+    MARCH(31),
+    APRIL(30),
+    MAY(31),
+    JUNE(30),
+    JULY(31),
+    AUGUST(31),
+    SEPTEMBER(30),
+    OCTOBER(31),
+    NOVEMBER(30),
+    DECEMBER(31);
 
-
-    private static final int[] ACCUMULATED_DAYS = {
-            0, 31, 59, 90,
-            120, 151, 181,
-            212, 243, 273,
-            304, 334, 365
-    };
     private static final Month[] MONTHS = Month.values();
 
+    private final int days;
+    private int accumulatedDays;
+
+    static {
+        int accumulatedCount = 0;
+        for (Month month : MONTHS) {
+            month.accumulatedDays = accumulatedCount;
+            accumulatedCount += month.getDays();
+        }
+
+    }
+
+    Month(final int days) {
+        this.days = days;
+    }
+
     public int getDays() {
-        int index = ordinal();
-        return ACCUMULATED_DAYS[index + 1]
-                - ACCUMULATED_DAYS[index];
+        return days;
     }
 
     public int getAccumulatedDays() {
-        return ACCUMULATED_DAYS[ordinal()];
+        return accumulatedDays;
     }
 
     public int toNumber() {
@@ -45,7 +54,8 @@ public enum Month {
     }
 
     public Month offset(final int offset) {
-        return MONTHS[Math.floorMod(this.ordinal() + offset, MONTHS.length)];
+        final int index = Math.floorMod(this.ordinal() + offset, MONTHS.length);
+        return MONTHS[index];
     }
 
     public Month previous() {

@@ -1,3 +1,6 @@
-tests.class
+com\cenfotec\proyectoqa\tests\GregorianDateTest.class
+com\cenfotec\proyectoqa\tests\tests.class
 com\cenfotec\proyectoqa\api\Date.class
 com\cenfotec\proyectoqa\api\Month.class
+com\cenfotec\proyectoqa\tests\DayOfWeekTest.class
+com\cenfotec\proyectoqa\tests\MonthTest.class

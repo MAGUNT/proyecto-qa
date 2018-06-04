@@ -3,10 +3,12 @@ package com.cenfotec.proyectoqa.api;
 public final class GregorianDate implements Date {
     private static final int DAYS_IN_YEAR_NO_LEAP         = 365;
     private static final long GREGORIAN_CALENDAR_INIT_DATE = 1582;
-    private static final long LEAP_YEAR_INTERVAL = 4;
-    private static final long CENTURY_INTERVAL   = 4;
-    private static final long CENTURY            = 100;
-    private static final long CENTURY_OFFSET     = 5;
+
+    private static final long LEAP_YEAR_INTERVAL    = 4;
+    private static final long CENTURY_INTERVAL      = 100;
+    private static final long CENTURY_OFFSET        = 5;
+    private static final long LEAP_CENTURY_INTERVAL = LEAP_YEAR_INTERVAL * CENTURY_INTERVAL;
+
 
     private final int day;
     private final Month month;
@@ -22,14 +24,15 @@ public final class GregorianDate implements Date {
     }
 
     private boolean isValidDate(long year, Month month, int day) {
-        int leap = month == Month.FEBRUARY ? leapCount(year) : 0;
+        final int leap = month == Month.FEBRUARY ? leapCount(year) : 0;
         return 0 < day &&  day <= (month.getDays() + leap)
                 && year > GREGORIAN_CALENDAR_INIT_DATE;
     }
 
     public static boolean isLeapYear(final long year) {
-        return (year % LEAP_YEAR_INTERVAL == 0 && year % CENTURY != 0)
-                || year % (CENTURY_INTERVAL * CENTURY) == 0;
+        return year % LEAP_YEAR_INTERVAL == 0
+                && (year % CENTURY_INTERVAL != 0
+                    || year % LEAP_CENTURY_INTERVAL == 0);
     }
 
     public boolean isLeapYear() {
@@ -192,7 +195,7 @@ public final class GregorianDate implements Date {
      *          Math.floorMod(-48 , 5); // 2
      *      </code></pre>
      *
-     *  <p> Además, se utiliza Math.floorDiv(yearCopy, CENTURY) ya que la división normal trunca hacia cero mientras que esta operación
+     *  <p> Además, se utiliza Math.floorDiv(yearCopy, CENTURY_INTERVAL) ya que la división normal trunca hacia cero mientras que esta operación
      *  trunca hacia el valor menor. (Igual esto es solo importante para años menores a cero) por ejemplo: </p>
      *       <pre><code class="language-java">
      *           Math.floorDiv(-4, 100); // -1
@@ -209,7 +212,7 @@ public final class GregorianDate implements Date {
      */
     public DayOfWeek getDayOfWeek() {
         final long yearCopy = year - (!greaterThanFebruary(month) ? 1 : 0);
-        final long century  = Math.floorDiv(yearCopy, CENTURY);
+        final long century  = Math.floorDiv(yearCopy, CENTURY_INTERVAL);
         final long week = (day
                 + cycleOffset(century)
                 + monthOffset(month)
@@ -259,7 +262,7 @@ public final class GregorianDate implements Date {
      */
 
     private long cycleOffset(final long century) {
-        return CENTURY_OFFSET * Math.floorMod(century, CENTURY_INTERVAL);
+        return CENTURY_OFFSET * Math.floorMod(century, LEAP_YEAR_INTERVAL);
     }
 
     /**   <p> Esta función  descompone el año como \(dateYear= 100\cdot century + g\)
@@ -280,8 +283,8 @@ public final class GregorianDate implements Date {
      * @return El desplazamiento de los días de la semana producido por los 2 últimos dígitos del año.
      */
     private long centuryReminderOffset(final long dateYear) {
-        long centuryRem       = Math.floorMod(dateYear , CENTURY);
-        long centuryLeapYears = (centuryRem / LEAP_YEAR_INTERVAL);
+        final long centuryRem       = Math.floorMod(dateYear , CENTURY_INTERVAL);
+        final long centuryLeapYears = (centuryRem / LEAP_YEAR_INTERVAL);
         return centuryRem + centuryLeapYears;
     }
 
@@ -310,6 +313,6 @@ public final class GregorianDate implements Date {
     @Override
     public String toString() {
         return String.format("(%d, %s, %d)",
-                day, month.toNumber(), year);
+                year, month.toNumber(), day);
     }
 }

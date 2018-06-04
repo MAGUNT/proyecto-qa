@@ -6,7 +6,7 @@ public interface Date {
     int getYearDays();
     DayOfWeek getDayOfWeek();
 
-    public static Date of(int year, Month month, int day) {
+    static Date of(long year, Month month, int day) {
         return new GregorianDate(year, month, day);
     }
 }

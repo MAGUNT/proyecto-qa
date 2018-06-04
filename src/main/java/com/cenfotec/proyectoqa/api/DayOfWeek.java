@@ -15,7 +15,7 @@ public enum DayOfWeek {
 
 
     public static DayOfWeek ofIndex(final int index) {
-        if (MIN_INDEX < 0 || index > MAX_INDEX) {
+        if (index < MIN_INDEX || index > MAX_INDEX) {
             throw new IllegalArgumentException();
         }
         return DAYS_IN_WEEK[index];
