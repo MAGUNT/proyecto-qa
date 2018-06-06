@@ -9,4 +9,7 @@ public interface Date {
     static Date of(long year, Month month, int day) {
         return new GregorianDate(year, month, day);
     }
+    static Date of(long year, int month, int day) {
+        return new GregorianDate(year, month, day);
+    }
 }

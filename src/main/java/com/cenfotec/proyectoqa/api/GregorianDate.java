@@ -23,6 +23,10 @@ public final class GregorianDate implements Date {
         this.year  = year;
     }
 
+    public GregorianDate(final long year, final int month, final int day){
+        this(year, Month.fromNumber(month), day);
+    }
+
     private boolean isValidDate(long year, Month month, int day) {
         final int leap = month == Month.FEBRUARY ? leapCount(year) : 0;
         return 0 < day &&  day <= (month.getDays() + leap)

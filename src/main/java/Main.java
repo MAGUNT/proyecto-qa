@@ -6,9 +6,9 @@ public class Main {
 
 
     public static void main(String[] args) {
-        int year = 1600;
-        int day = 30;
-        Month m = Month.NOVEMBER;
+        int year = 2000;
+        int day = 15;
+        Month m = Month.DECEMBER;
         long offset = 0;
 
         System.out.println(Month.FEBRUARY.getDays());
