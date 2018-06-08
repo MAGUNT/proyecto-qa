@@ -1,5 +1,6 @@
 import com.cenfotec.proyectoqa.api.Date;
 import com.cenfotec.proyectoqa.api.DayOfWeek;
+import com.cenfotec.proyectoqa.api.GregorianDate;
 import com.cenfotec.proyectoqa.api.Month;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,12 +9,16 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class DateTest {
-
     private static final long LEAP_CENTURY_INTERVAL = 400;
     private static final int DAY_IN_WEEK = 7;
+    private static final String FORMAT_REGEX =
+            "\\((([1-9]\\d{3,})|(\\d{4}))\\s*,\\s*(1[0-2]" +
+            "|0[1-9])\\s*,\\s*([12]\\d|0[1-9]|3[01])\\)";
+
 
     @Test
     void addDaysOverflowYearTest() {
@@ -318,6 +323,42 @@ public class DateTest {
                 Date.of(boundaryYear, month, day + 1) );
     }
 
+    @Test
+    void toStringFormatTest() {
+        final int day      =  15;
+        final Month month  = Month.JANUARY;
+        final long year = 1583;
+
+        Date date = Date.of(year, month, day);
+        Assertions.assertTrue(
+                Pattern.matches(FORMAT_REGEX,
+                        date.toString()));
+    }
+
+    @Test
+    void isLeapYearBoundaryTest() {
+        final long boundaryYear = 1582;
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> GregorianDate.isLeapYear(boundaryYear));
+
+        Assertions.assertFalse(
+                GregorianDate.isLeapYear(boundaryYear + 1));
+    }
+    @ParameterizedTest
+    @MethodSource("yearLeapTestProvider")
+    void leapYearTest(long year, boolean isLeapYearExpected) {
+        Assertions.assertEquals(
+                isLeapYearExpected,
+                GregorianDate.isLeapYear(year));
+    }
 
 
+    static Stream<Arguments> yearLeapTestProvider() {
+        return Stream.of(
+                Arguments.of(1777L, false),
+                Arguments.of(1900L, false),
+                Arguments.of(1904L, true),
+                Arguments.of(1600L, true));
+    }
 }

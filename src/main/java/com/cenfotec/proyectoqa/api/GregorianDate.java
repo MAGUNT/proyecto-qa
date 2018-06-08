@@ -1,12 +1,41 @@
 package com.cenfotec.proyectoqa.api;
 
+/**
+ * <p>
+ *     GregorianDate es un objeto inmutable de fecha (Calendario gregoriano) que
+ *     representa una fecha, a menudo vista como año-mes-día.
+ *     También se puede acceder a otros campos de fecha, como día del año,
+ *     día de la semana y semana del año. Por ejemplo, el valor "2 de octubre de 2007"
+ *     se puede almacenar en un GregorianDate.
+ * </p>
+ */
 public final class GregorianDate implements Date {
+    /**
+     * <p>Cantidad de días en un año no bisiesto.</p>
+     */
     private static final int DAYS_IN_YEAR_NO_LEAP         = 365;
+
+    /**
+     * <p>Año en que se introdujo el calendario gregoriano.</p>
+     */
     private static final long GREGORIAN_CALENDAR_INIT_DATE = 1582;
 
+    /**
+     * <p>Intervalo de año en el cual ocurre un año bisiesto.</p>
+     */
     private static final long LEAP_YEAR_INTERVAL    = 4;
+    /**
+     * <p>Cantidad de años en un siglo.</p>
+     */
     private static final long CENTURY_INTERVAL      = 100;
+    /**
+     * <p>El desfase que produce una siglo sobre los días de la semana.</p>
+     */
     private static final long CENTURY_OFFSET        = 5;
+
+    /**
+     * <p>El intervalo en siglos en el cual hay un año bisiesto.</p>
+     */
     private static final long LEAP_CENTURY_INTERVAL = LEAP_YEAR_INTERVAL * CENTURY_INTERVAL;
 
 
@@ -20,7 +49,7 @@ public final class GregorianDate implements Date {
      * Tiene como precondición que la fecha sea válida, según lo que dicta el calendario gregoriano. </p>
      * @param year Año
      * @param month Enumeración con el mes.
-     * @param day Día del mes
+     * @param day Día del mes.
      *
      */
 
@@ -55,8 +84,30 @@ public final class GregorianDate implements Date {
      */
     private boolean isValidDate(long year, Month month, int day) {
         final int leap = month == Month.FEBRUARY ? leapCount(year) : 0;
-        return 0 < day &&  day <= (month.getDays() + leap)
-                && year > GREGORIAN_CALENDAR_INIT_DATE;
+        return 0 < day
+                &&  day <= (month.getDays() + leap)
+                && checkYear(year);
+    }
+
+    /**
+     * <p>Método estático que determina si un año es bisiesto.
+     * Sin validación del año.</p>
+     * @param year Año
+     * @return Si el año es bisiesto.
+     */
+    private static boolean isLeap(final long year) {
+        return year % LEAP_YEAR_INTERVAL == 0
+                && (year % CENTURY_INTERVAL != 0
+                || year % LEAP_CENTURY_INTERVAL == 0);
+    }
+
+    /**
+     * <p>Método para validar el año.</p>
+     * @param year Año
+     * @return Si el año es mayor a 1582
+     */
+    private static boolean checkYear(final long year) {
+        return year > GREGORIAN_CALENDAR_INIT_DATE;
     }
 
     /**
@@ -65,9 +116,10 @@ public final class GregorianDate implements Date {
      * @return Si el año es bisiesto.
      */
     public static boolean isLeapYear(final long year) {
-        return year % LEAP_YEAR_INTERVAL == 0
-                && (year % CENTURY_INTERVAL != 0
-                    || year % LEAP_CENTURY_INTERVAL == 0);
+        if(!checkYear(year)) {
+            throw new IllegalArgumentException("Invalid year");
+        }
+        return isLeap(year);
     }
 
     /**
@@ -438,6 +490,12 @@ public final class GregorianDate implements Date {
                 year, month.toNumber(), day);
     }
 
+
+    /**
+     * <p>Método equals.</p>
+     * @param other El objeto a comparar.
+     * @return Si son iguales.
+     */
     @Override
     public boolean equals(Object other) {
         if(this == other) {
@@ -452,6 +510,10 @@ public final class GregorianDate implements Date {
                 && this.month == date.month;
      }
 
+    /**
+     * <p>Método hashCode.</p>
+     * @return Código hash.
+     */
      @Override
      public int hashCode() {
          final int intBits = 32;
