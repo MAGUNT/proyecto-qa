@@ -14,8 +14,18 @@ public final class GregorianDate implements Date {
     private final Month month;
     private final long year;
 
+    /**
+     *
+     *<p>Este método construye una fecha del calendario gregoriano a partir del año mes y día.
+     * Tiene como precondición que la fecha sea válida, según lo que dicta el calendario gregoriano. </p>
+     * @param year Año
+     * @param month Enumeración con el mes.
+     * @param day Día del mes
+     *
+     */
+
     public GregorianDate(final long year, final Month month, final int day) {
-        if(!isValidDate(year, month, day)) {
+        if(month == null || !isValidDate(year, month, day)) {
             throw new IllegalArgumentException("Invalid date");
         }
         this.day   = day;
@@ -23,26 +33,81 @@ public final class GregorianDate implements Date {
         this.year  = year;
     }
 
+    /**
+     *
+     *<p>Este método construye una fecha del calendario gregoriano a partir del año mes y día.
+     * Tiene como precondición que la fecha sea válida, según lo que dicta el calendario gregoriano. </p>
+     * @param year Año
+     * @param month Enumeración con el mes. \(1\leq mes \leq 12\)
+     * @param day Día del mes
+     *
+     */
     public GregorianDate(final long year, final int month, final int day){
         this(year, Month.fromNumber(month), day);
     }
 
+    /**
+     * <p>Metodo privado para validar la fecha.</p>
+     * @param year Año
+     * @param month Enumeración con el mes.
+     * @param day Día del mes
+     * @return Si la fecha es valida.
+     */
     private boolean isValidDate(long year, Month month, int day) {
         final int leap = month == Month.FEBRUARY ? leapCount(year) : 0;
         return 0 < day &&  day <= (month.getDays() + leap)
                 && year > GREGORIAN_CALENDAR_INIT_DATE;
     }
 
+    /**
+     * Método estático que determina si un año es bisiesto.
+     * @param year Año
+     * @return Si el año es bisiesto.
+     */
     public static boolean isLeapYear(final long year) {
         return year % LEAP_YEAR_INTERVAL == 0
                 && (year % CENTURY_INTERVAL != 0
                     || year % LEAP_CENTURY_INTERVAL == 0);
     }
 
+    /**
+     * <p>Método estático que determina si un año es bisiesto.</p>
+     * @return Si el año es bisiesto.
+     */
+    @Override
     public boolean isLeapYear() {
         return isLeapYear(year);
     }
 
+    /**
+     * <p>Una nueva fecha desplazada offset cantidad de días.</p>
+     * <p>Este método utiliza fromYearDays y suma el offset. Luego un
+     * ciclo corre hasta que la cantidad de días
+     * sea menor o igual a la cantidad de días que hay en un año (Este siglo corre solo para offset positivos)</p>
+     *
+     *  <pre><code class="language-java">
+     *      while (yearDays &gt; daysInYear(year)) {
+     *          yearDays -= daysInYear(year);
+     *          year = Math.incrementExact(year);
+     *      }
+     *  </code></pre>
+     * <p>Luego tenemos otro ciclo similar para offsets negativos. </p>
+     *
+     * <pre><code class="language-java">
+     *     while(yearDays &lt;= 0) {
+     *         year = Math.decrementExact(year);
+     *         yearDays += daysInYear(year);
+     *     }
+     *  </code></pre>
+     *
+     *  Ambos ciclos recalculan el año agregándole o restándole a los días del año la cantidad de días que hay en este.
+     *  En cada ciglo se mantiene invariante el total neto de días.  Finalmente al terminar ambos ciclos, se tiene los días del año
+     *  y el año talque \(1\leq dias \leq 366\).
+     *
+     * @param offset Dias que se quieren sumar o restar.
+     * @return Una nueva fecha desplazada offset cantidad de dias.
+     */
+    @Override
     public GregorianDate addDays(final long offset) {
         long yearDays = Math.addExact(getYearDays(), offset);
         long year     = this.year;
@@ -58,6 +123,44 @@ public final class GregorianDate implements Date {
         return fromYearDays((int) yearDays, year);
     }
 
+    /**
+     * <p>Este método agrega un día a la fecha actual.</p>
+     * @return La fecha del día siguiente.
+     */
+    @Override
+    public GregorianDate nextDay() {
+        return addDays(1);
+    }
+
+    /**
+     * <p>Es la operación inversa del método daysInYear(final long year).
+     *  Calcula una fecha a partir del año y los días de ese año. </p>
+     *
+     *  <p>
+     *      Empezando desde diciembre se busca el mes en el cual los días acumulados sean menores a los días del año.
+     *      (Esto sirve porque los valores acumulados se recorren de forma descendiente).
+     *  </p>
+     *   <pre><code class="language-java">
+     *      Month month = Month.DECEMBER;
+     *      int leap    = leapCount(year);
+     *
+     *      while(daysOfYear &lt;= (month.getAccumulatedDays() + leap)) {
+     *          month = month.previous();
+     *          leap  = !greaterThanFebruary(month) ? 0 : leap;
+     *      }
+     *   </code></pre>
+     *
+     *  <p>Finalmente se calcula los días de la fecha, restando los días acumulados y 1 en caso de que el mes sea mayor a febrero y el año bisiesto</p>
+     *
+     *   <pre><code class="language-java">
+     *     int days = daysOfYear
+     *                 - month.getAccumulatedDays()
+     *                 - leap;
+     *     </code></pre>
+     * @param daysOfYear Días del año
+     * @param year Año
+     * @return Fecha gregoriana.
+     */
     private GregorianDate fromYearDays(final int daysOfYear, final long year) {
         Month month = Month.DECEMBER;
         int leap    = leapCount(year);
@@ -72,10 +175,20 @@ public final class GregorianDate implements Date {
         return new GregorianDate(year, month, days);
     }
 
+    /**
+     * <p>Calcula la cantidad de días que hay en un año en específico.</p>
+     * @param year Año
+     * @return Cantidad de días en un año: 365 para años normales y 366 para bisiestos.
+     */
     private int daysInYear(final long year) {
         return DAYS_IN_YEAR_NO_LEAP + leapCount(year);
     }
 
+    /**
+     * <p>Este metodo calcula la cantidad de dias del año.</p>
+     * @return Dias del año. \(1\leq dias \leq 366\)
+     */
+    @Override
     public int getYearDays() {
         int days =  month.getAccumulatedDays() + day;
         if (greaterThanFebruary(month)) {
@@ -214,6 +327,7 @@ public final class GregorianDate implements Date {
      *
      *
      */
+    @Override
     public DayOfWeek getDayOfWeek() {
         final long yearCopy = year - (!greaterThanFebruary(month) ? 1 : 0);
         final long century  = Math.floorDiv(yearCopy, CENTURY_INTERVAL);
@@ -314,9 +428,39 @@ public final class GregorianDate implements Date {
                 - (greaterThanFebruary(month) ? 1 : 0);
     }
 
+    /**
+     * <p>Método retorna una representación con el formato (YYYY, MM, DD)</p>
+     * @return (YYYY, MM, DD).
+     */
     @Override
     public String toString() {
-        return String.format("(%d, %s, %d)",
+        return String.format("(%04d, %02d, %02d)",
                 year, month.toNumber(), day);
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if(this == other) {
+            return true;
+        }
+        if(!(other instanceof GregorianDate)) {
+            return false;
+        }
+        GregorianDate date = (GregorianDate) other;
+        return  this.year == date.year
+                && this.day == date.day
+                && this.month == date.month;
+     }
+
+     @Override
+     public int hashCode() {
+         final int intBits = 32;
+         final int prime   = 31;
+         int result        = 17;
+         result = prime * result + day;
+         result = prime * result + (int) (year ^ (year >>> intBits));
+         result = prime * result + month.toNumber();
+         return result;
+     }
+
 }

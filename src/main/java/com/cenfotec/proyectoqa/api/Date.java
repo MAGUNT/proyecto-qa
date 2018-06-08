@@ -2,6 +2,7 @@ package com.cenfotec.proyectoqa.api;
 
 public interface Date {
     GregorianDate addDays(final long offset);
+    GregorianDate nextDay();
     boolean isLeapYear();
     int getYearDays();
     DayOfWeek getDayOfWeek();
