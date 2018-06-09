@@ -61,4 +61,4 @@ fabric.properties
 /.classpath
 /.project
 /target/classes/
-/target/test-classes/
+/target/classes/
