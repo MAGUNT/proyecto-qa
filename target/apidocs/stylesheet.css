@@ -3,12 +3,11 @@
 Overall document style
 */
 
-@import url('resources/fonts/dejavu.css');
 
 body {
     background-color:#ffffff;
     color:#353833;
-    font-family:'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size:14px;
     margin:0;
 }

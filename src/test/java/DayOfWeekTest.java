@@ -2,9 +2,15 @@ import com.cenfotec.proyectoqa.api.DayOfWeek;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * <p>Pruebas para la enumeración DayOfWeek</p>
+ */
 public class DayOfWeekTest {
 
 
+    /**
+     * <p>Prueba las clases de equivalencia y valor límite para el método indexOf.</p>
+     */
     @Test
     void ofIndexTest() {
        final int lowerBoundary = 0;

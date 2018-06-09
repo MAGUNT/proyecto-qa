@@ -21,7 +21,7 @@ public enum DayOfWeek {
 
 
     /**
-     * <p>Mapea un la representación numérica a su enumeración equivalente.</p>
+     * <p>Mapea la representación numérica a su enumeración equivalente.</p>
      * @param dayOfWeekNumber Representación numérica del día de la semana, del 0 (domingo) al 7(sábado)
      * @return Enumeración con el día de la semana.
      */
@@ -33,7 +33,7 @@ public enum DayOfWeek {
     }
 
     /**
-     * <p>Cantidad de días en un semana</p>
+     * <p>Cantidad de días en un semana.</p>
      * @return Número de días en una semana.
      */
     public static int daysInWeek() {

@@ -12,6 +12,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+/**
+ *<p>Pruebas para la fecha gregoriana.</p>
+ */
 public class DateTest {
     private static final long LEAP_CENTURY_INTERVAL = 400;
     private static final int DAY_IN_WEEK = 7;
@@ -20,6 +23,9 @@ public class DateTest {
             "|0[1-9])\\s*,\\s*([12]\\d|0[1-9]|3[01])\\)";
 
 
+    /**
+     * <p>Prueba para verificar que la fecha falle cuando hay un “overflow” en el año.</p>
+     */
     @Test
     void addDaysOverflowYearTest() {
         final long offset = 366;
@@ -30,6 +36,9 @@ public class DateTest {
                 Date.of(Long.MAX_VALUE, month, day).addDays(offset));
     }
 
+    /**
+     * <p>Prueba para probar que la clase falle cuando hay un “overflow “debido al offset.</p>
+     */
     @Test
     void addDaysOverflowOffsetTest() {
         final long year   = 1900;
@@ -40,6 +49,10 @@ public class DateTest {
                 () -> Date.of(year, month, day).addDays(Long.MAX_VALUE));
     }
 
+    /**
+     * <p>Pruebas de particiones de equivalencia para la variable mes, en la función para buscar el día de la semana.
+     * Esta función solo se encarga de los valores límite inválidos. </p>
+     */
     @Test
     void dayOfTheWeekMonthNoValidBoundaryTest() {
         final int invalidLeftBoundary = 0;
@@ -53,11 +66,26 @@ public class DateTest {
                 () -> Date.of(year, invalidRightBoundary, day));
     }
 
+    /**
+     * <p>Pruebas parametrizables de particiones de equivalencia para la variable mes,
+     *    en la función para buscar el día de la semana.
+     *    Esta función solo se encarga de los valores límite válidos. </p>
+     *
+     * @param year Año
+     * @param month Mes
+     * @param day Día
+     * @param controlResult Resultado esperado.
+     */
     @ParameterizedTest
     @MethodSource("validBoundaryProvider")
     void dayOfTheWeekMonthValidBoundaryTest(long year, int month, int day, DayOfWeek controlResult) {
         Assertions.assertEquals(Date.of(year, month, day).getDayOfWeek(), controlResult);
     }
+
+    /**
+     * <p>Función que provee los datos de prueba a la función dayOfTheWeekMonthValidBoundaryTest.</p>
+     * @return Datos de prueba para la función dayOfTheWeekMonthValidBoundaryTest
+     */
     static Stream<Arguments> validBoundaryProvider() {
         final long leapYear        = 2000;
         final long noLeapYear      = 2001;
@@ -81,6 +109,9 @@ public class DateTest {
     }
 
 
+    /**
+     * <p>Pruebas para verificar el contrato de equals.</p>
+     */
     @Test
     void equalsTest() {
         final Month month     = Month.AUGUST;
@@ -111,6 +142,9 @@ public class DateTest {
 
     }
 
+    /**
+     * <p>Prueba que verifica que la función getDayOfWeek cumpla con desfase 0 cada 400 años.</p>
+     */
     @Test
     void cycleTest() {
         final Month month     = Month.FEBRUARY;
@@ -126,6 +160,9 @@ public class DateTest {
                 offset.getDayOfWeek());
     }
 
+    /**
+     *<p>Verifica el desfase que produce un día en la función getDayOfWeek</p>
+     */
     @Test
     void dayOffsetTest() {
         final Month month     = Month.JANUARY;
@@ -143,7 +180,12 @@ public class DateTest {
     }
 
 
-
+    /**
+     *  <p>Pruebas parametrizables de particiones de equivalencia para la variable dia,
+     *   en la función para validar la fecha.
+     *  Esta función solo se encarga de los valores límite inferiores en todos los meses. </p>
+     * @param month
+     */
     @ParameterizedTest
     @EnumSource(value = Month.class)
     void validDateDayLowBoundaryTest(Month month) {
@@ -155,6 +197,12 @@ public class DateTest {
     }
 
 
+    /**
+     *  <p>Pruebas parametrizables de particiones de equivalencia para la variable día ,
+     *   en la función para validar la fecha.
+     *  Esta función solo se encarga de los valores límite superiores en los meses con 31 días. </p>
+     * @param month
+     */
     @ParameterizedTest
     @EnumSource(value = Month.class,
             names = { "JANUARY", "MARCH",
@@ -168,6 +216,12 @@ public class DateTest {
     }
 
 
+    /**
+     *  <p>Pruebas parametrizables de particiones de equivalencia para la variable día ,
+     *   en la función para validar la fecha.
+     *  Esta función solo se encarga de los valores límite superiores en los meses con 30 días. </p>
+     * @param month
+     */
     @ParameterizedTest
     @EnumSource(value = Month.class,
             names = { "APRIL", "JUNE", "SEPTEMBER", "NOVEMBER"})
@@ -179,6 +233,13 @@ public class DateTest {
                 () -> Date.of(year, month, 30));
     }
 
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable día ,
+     *   en la función para validar la fecha.
+     *   Esta función solo se encarga de los valores límite superiores en el mes de febrero,
+     *  con el año no bisiesto. </p>
+     *
+     */
     @Test
     void validDateDayBoundaryTestForFebruaryNoLeap() {
         final long year   = 1721;
@@ -189,6 +250,13 @@ public class DateTest {
                 () -> Date.of(year, month, 28));
     }
 
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable día ,
+     *   en la función para validar la fecha.
+     *   Esta función solo se encarga de los valores límite superiores en el mes de febrero,
+     *  con el año bisiesto. </p>
+     *
+     */
     @Test
     void validDateDayBoundaryTestForFebruaryLeap() {
         final long leapYear   = 1724;
@@ -199,6 +267,12 @@ public class DateTest {
                 () -> Date.of(leapYear, month, 29));
     }
 
+
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable mes,
+     *   en la función para validar la fecha.
+     *
+     */
     @Test
     void validDateMonthBoundaryTest() {
         final int day    =  15;
@@ -216,6 +290,10 @@ public class DateTest {
 
     }
 
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable año,
+     *   en la función para validar la fecha.
+     */
     @Test
     void validDateYearBoundaryTest() {
         final int day      =  15;
@@ -229,6 +307,12 @@ public class DateTest {
 
     }
 
+    /**
+     *  <p>Pruebas parametrizables de particiones de equivalencia para la variable día,
+     *   en la función para calcular el día siguiente.
+     *  Esta función solo se encarga de los valores límite inferiores en todos los meses. </p>
+     * @param month Mes
+     */
     @ParameterizedTest
     @EnumSource(value = Month.class)
     void nextDayLowBoundaryTest(Month month) {
@@ -241,7 +325,12 @@ public class DateTest {
     }
 
 
-
+    /**
+     *  <p>Pruebas parametrizables de particiones de equivalencia para la variable día,
+     *   en la función para calcular el día siguiente.
+     *  Esta función solo se encarga de los valores límite superiores, en los meses con 31 días. </p>
+     * @param month Mes
+     */
     @ParameterizedTest
     @EnumSource(value = Month.class,
             names = { "JANUARY", "MARCH", "MAY",
@@ -257,6 +346,12 @@ public class DateTest {
     }
 
 
+    /**
+     *  <p>Pruebas parametrizables de particiones de equivalencia para la variable día,
+     *   en la función para calcular el día siguiente.
+     *  Esta función solo se encarga de los valores límite superiores, en los meses con 30 días. </p>
+     * @param month Mes
+     */
     @ParameterizedTest
     @EnumSource(value = Month.class,
             names = { "APRIL", "JUNE", "SEPTEMBER", "NOVEMBER"})
@@ -270,6 +365,11 @@ public class DateTest {
     }
 
 
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable día,
+     *   en la función para calcular el día siguiente.
+     *  Esta función solo se encarga de los valores límite superiores, en febrero sin año bisiesto. </p>
+     */
     @Test
     void nextDayBoundaryTestForFebruaryNoLeap() {
         final long year   = 1721;
@@ -281,6 +381,11 @@ public class DateTest {
                 Date.of(year, month.next(), 1));
     }
 
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable día,
+     *   en la función para calcular el día siguiente.
+     *  Esta función solo se encarga de los valores límite superiores, en febrero con año bisiesto. </p>
+     */
     @Test
     void nextDayBoundaryTestForFebruaryLeap() {
         final long leapYear   = 1724;
@@ -290,6 +395,11 @@ public class DateTest {
         Assertions.assertEquals(Date.of(leapYear, month, 29).nextDay(),
                 Date.of(leapYear, month.next(), 1));
     }
+
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable mes,
+     *   en la función para calcular el dia siguiente.
+     */
     @Test
     void nextDayMonthBoundaryTest() {
         final int day    =  15;
@@ -309,6 +419,10 @@ public class DateTest {
 
     }
 
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable año,
+     *   en la función para calcular el dia siguiente.
+     */
     @Test
     void nextDayYearBoundaryTest() {
         final int day      =  15;
@@ -323,6 +437,9 @@ public class DateTest {
                 Date.of(boundaryYear, month, day + 1) );
     }
 
+    /**
+     * Prueba para verificar que el método toString cumpla con el formato (YYYY, MM, DD).
+     */
     @Test
     void toStringFormatTest() {
         final int day      =  15;
@@ -335,6 +452,10 @@ public class DateTest {
                         date.toString()));
     }
 
+    /**
+     *  <p>Pruebas de particiones de equivalencia para la variable año,
+     *      en la función para determinar si un año es bisiesto.
+     */
     @Test
     void isLeapYearBoundaryTest() {
         final long boundaryYear = 1582;
@@ -345,6 +466,12 @@ public class DateTest {
         Assertions.assertFalse(
                 GregorianDate.isLeapYear(boundaryYear + 1));
     }
+
+    /**
+     * <p>Prueba parametrizable para el método que determina si un año es bisiesto.</p>
+     * @param year Año
+     * @param isLeapYearExpected Valor esperado
+     */
     @ParameterizedTest
     @MethodSource("yearLeapTestProvider")
     void leapYearTest(long year, boolean isLeapYearExpected) {
@@ -354,6 +481,10 @@ public class DateTest {
     }
 
 
+    /**
+     * <p>Este método provee los datos a la prueba leapYearTest. Cada dato pertenece a un grupo específico.</p>
+     * @return Parámetros para prueba leapYearTest.
+     */
     static Stream<Arguments> yearLeapTestProvider() {
         return Stream.of(
                 Arguments.of(1777L, false),
@@ -361,4 +492,23 @@ public class DateTest {
                 Arguments.of(1904L, true),
                 Arguments.of(1600L, true));
     }
+
+    /**
+     * <p>Prueba para el método que agrega o resta días.</p>
+     */
+    @Test
+    void addDaysTest() {
+        final int year    = 1600;
+        final int day     = 1;
+        final Month month = Month.FEBRUARY;
+        final long offset = 2110;
+
+        Date date = Date.of(year, month, day);
+        Date expectedAddDate = Date.of(1605, Month.NOVEMBER, 11);
+        Date expectedMinus = Date.of(1594, Month.APRIL, 23);
+
+        Assertions.assertEquals(expectedAddDate, date.addDays(offset));
+        Assertions.assertEquals(expectedMinus, date.addDays(-offset));
+    }
+
 }

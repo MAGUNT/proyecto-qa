@@ -76,13 +76,13 @@ public final class GregorianDate implements Date {
     }
 
     /**
-     * <p>Metodo privado para validar la fecha.</p>
+     * <p>Metodo para validar la fecha.</p>
      * @param year Año
      * @param month Enumeración con el mes.
      * @param day Día del mes
      * @return Si la fecha es valida.
      */
-    private boolean isValidDate(long year, Month month, int day) {
+    public static boolean isValidDate(long year, Month month, int day) {
         final int leap = month == Month.FEBRUARY ? leapCount(year) : 0;
         return 0 < day
                 &&  day <= (month.getDays() + leap)
@@ -393,6 +393,33 @@ public final class GregorianDate implements Date {
     }
 
     /**
+     *
+     * @return Año
+     */
+    @Override
+    public long getYear() {
+        return year;
+    }
+
+    /**
+     *
+     * @return Día
+     */
+    @Override
+    public int getDay() {
+        return day;
+    }
+
+    /**
+     *
+     * @return Mes
+     */
+    @Override
+    public Month getMonth() {
+        return month;
+    }
+
+    /**
      * <p>Esta función retorna 1 si el año es bisiesto o de lo contrario 0. </p>
      * @param year Año.
      * @return  1 si el año es bisiesto o de lo contrario 0.
@@ -405,7 +432,7 @@ public final class GregorianDate implements Date {
     /**
      * <p>Esta función verifica que el mes sea posterior a febrero.</p>
      * @param month Mes.
-     * @return Si \(month &lt; 2\).
+     * @return Si \(2 &lt; month\).
      */
     private static boolean greaterThanFebruary(final Month month) {
         return month.compareTo(Month.FEBRUARY) > 0;
