@@ -44,13 +44,11 @@ public final class GregorianDate implements Date {
     private final long year;
 
     /**
-     *
      *<p>Este método construye una fecha del calendario gregoriano a partir del año mes y día.
      * Tiene como precondición que la fecha sea válida, según lo que dicta el calendario gregoriano. </p>
      * @param year Año
      * @param month Enumeración con el mes.
      * @param day Día del mes.
-     *
      */
 
     public GregorianDate(final long year, final Month month, final int day) {
@@ -120,15 +118,6 @@ public final class GregorianDate implements Date {
             throw new IllegalArgumentException("Invalid year");
         }
         return isLeap(year);
-    }
-
-    /**
-     * <p>Método estático que determina si un año es bisiesto.</p>
-     * @return Si el año es bisiesto.
-     */
-    @Override
-    public boolean isLeapYear() {
-        return isLeapYear(year);
     }
 
     /**
@@ -390,33 +379,6 @@ public final class GregorianDate implements Date {
                 % DayOfWeek.daysInWeek();
 
         return DayOfWeek.ofIndex((int) week);
-    }
-
-    /**
-     *
-     * @return Año
-     */
-    @Override
-    public long getYear() {
-        return year;
-    }
-
-    /**
-     *
-     * @return Día
-     */
-    @Override
-    public int getDay() {
-        return day;
-    }
-
-    /**
-     *
-     * @return Mes
-     */
-    @Override
-    public Month getMonth() {
-        return month;
     }
 
     /**

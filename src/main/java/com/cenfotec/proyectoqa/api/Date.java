@@ -19,12 +19,6 @@ public interface Date {
     GregorianDate nextDay();
 
     /**
-     * <p>Método estático que determina si un año es bisiesto.</p>
-     * @return Si el año es bisiesto.
-     */
-    boolean isLeapYear();
-
-    /**
      * <p>Este metodo calcula la cantidad de dias del año.</p>
      * @return Dias del año. \(1\leq dias \leq 366\)
      */
@@ -35,24 +29,6 @@ public interface Date {
      * @return Día de la semana
      */
     DayOfWeek getDayOfWeek();
-
-    /**
-     *
-     * @return Año
-     */
-    long getYear();
-
-    /**
-     *
-     * @return Día
-     */
-    int getDay();
-
-    /**
-     *
-     * @return Mes
-     */
-    Month getMonth();
 
     /**
      * <p>Fabrica estática para crear alguna implementación concreta de la interface.</p>

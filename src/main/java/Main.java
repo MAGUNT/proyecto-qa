@@ -13,6 +13,6 @@ public class Main {
         System.out.println(GregorianDate.isValidDate(year, month, day));
         System.out.println(date.nextDay());
         System.out.println(date.getDayOfWeek().ordinal());
-        System.out.println(date.isLeapYear());
+        System.out.println(GregorianDate.isLeapYear(year));
     }
 }

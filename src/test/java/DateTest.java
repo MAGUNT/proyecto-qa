@@ -108,6 +108,44 @@ public class DateTest {
         );
     }
 
+    /**
+     * <p>Test para probar todos los caminos posibles del método equals.</p>
+     */
+    @Test
+    void equalsPaths() {
+        final int year    = 1584;
+        final Month month = Month.JANUARY;
+        final int day     = 15;
+
+        // Primer condicional falla.
+        Assertions.assertNotEquals(
+                Date.of(year - 1, month, day),
+                Date.of(year, month, day));
+
+        // Segundo condicional falla.
+        Assertions.assertNotEquals(
+                Date.of(year, month, day),
+                Date.of(year, month, day + 1));
+        // Tercer condicional falla.
+
+        Assertions.assertNotEquals(
+                Date.of(year, month.next(), day),
+                Date.of(year, month, day));
+    }
+
+    /**
+     * <p>Test para probar la consistencia de hascode</p>
+     */
+    @Test
+    void hashcodeTest() {
+        // Test de predictibilidad.
+        final Month month = Month.AUGUST;
+        final long year   = 1645;
+        final int day     = 12;
+        Assertions.assertEquals(
+                Date.of(year, month, day).hashCode(),
+                Date.of(year, month, day).hashCode());
+    }
 
     /**
      * <p>Pruebas para verificar el contrato de equals.</p>
@@ -215,7 +253,6 @@ public class DateTest {
                 () -> Date.of(year, month, 31));
     }
 
-
     /**
      *  <p>Pruebas parametrizables de particiones de equivalencia para la variable día ,
      *   en la función para validar la fecha.
@@ -302,9 +339,26 @@ public class DateTest {
 
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Date.of(boundaryYear - 1, month, day));
+
+
         Assertions.assertDoesNotThrow(
                 () -> Date.of(boundaryYear, month, day));
 
+        // Nuevo
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Date.of(boundaryYear - 1, Month.JANUARY, day));
+    }
+
+    // nuevo
+
+    @Test
+    void nullMonthAssertionError() {
+        final int year    = 1777;
+        final int day     = 15;
+        final Month month = null;
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new GregorianDate(year, month, day));
     }
 
     /**
