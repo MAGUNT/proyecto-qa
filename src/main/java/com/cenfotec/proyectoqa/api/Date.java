@@ -52,5 +52,33 @@ public interface Date {
         return new GregorianDate(year, month, day);
     }
 
+    /**
+     * <p>Este método calcula el número de días desde el año 0.
+     * Para años positivos este método calcula los días bisiestos
+     * desde el año cero y suma lo retornado por getYearDays.</p>
+     * @return Cantidad de dias
+     */
+    long numOfDays();
+
+    /**
+     * <p>Calcula la cantidad de días entre 2 fechas.</p>
+     * @param other otra fecha.
+     * @return cantidad de días entre 2 fechas
+     */
+    long daysBetween(final Date other);
+
+    /**
+     * <p>Agrega días a una fecha.</p>
+     * @param offset cantidad de días agregados
+     * @return Nueva fecha.
+     */
+    Date futureDate(final long offset);
+
+    /**
+     * <p>Substrae días a una fecha.</p>
+     * @param offset cantidad de días agregados
+     * @return Nueva fecha.
+     */
+    Date pastDate(final long offset);
 
 }

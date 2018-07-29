@@ -1,5 +1,6 @@
 package com.cenfotec.proyectoqa.api;
 
+
 /**
  * <p>
  *     GregorianDate es un objeto inmutable de fecha (Calendario gregoriano) que
@@ -13,7 +14,7 @@ public final class GregorianDate implements Date {
     /**
      * <p>Cantidad de días en un año no bisiesto.</p>
      */
-    private static final int DAYS_IN_YEAR_NO_LEAP         = 365;
+    private static final int DAYS_IN_YEAR_NO_LEAP = 365;
 
     /**
      * <p>Año en que se introdujo el calendario gregoriano.</p>
@@ -23,7 +24,7 @@ public final class GregorianDate implements Date {
     /**
      * <p>Intervalo de año en el cual ocurre un año bisiesto.</p>
      */
-    private static final long LEAP_YEAR_INTERVAL    = 4;
+    private static final long LEAP_YEAR_INTERVAL = 4;
     /**
      * <p>Cantidad de años en un siglo.</p>
      */
@@ -202,10 +203,9 @@ public final class GregorianDate implements Date {
      * @param year Año
      * @return Fecha gregoriana.
      */
-    private GregorianDate fromYearDays(final int daysOfYear, final long year) {
+    public static GregorianDate fromYearDays(final int daysOfYear, final long year) {
         Month month = Month.DECEMBER;
         int leap    = leapCount(year);
-
         while(daysOfYear <= (month.getAccumulatedDays() + leap)) {
             month = month.previous();
             leap  = !greaterThanFebruary(month) ? 0 : leap;
@@ -500,6 +500,88 @@ public final class GregorianDate implements Date {
      }
 
     /**
+     * <p>Este método calcula el número de días desde el año 0.</p>
+     *
+     * Este condicion es para tomar en cuenta años negativos.
+     * <pre><code class="language-java">
+     *     (year <= 0 ? 0 : 1);
+     *     </code></pre>
+     *
+     * <p>Para años positivos este método calcula los días bisiestos
+     * desde el año cero y suma lo retornado por getYearDays.</p>
+     * @return Cantidad de dias
+     */
+    @Override
+    public long numOfDays() {
+        final long isYearPositive = (year <= 0 ? 0 : 1);
+        final long yearCopy       = year - isYearPositive;
+        final long leapDays       = leapDaysInYear(yearCopy);
+        final long yearZero       = (isYearPositive
+                * (DAYS_IN_YEAR_NO_LEAP + 1));
+
+        return  yearZero
+                + yearCopy
+                * DAYS_IN_YEAR_NO_LEAP
+                + leapDays
+                + getYearDays();
+    }
+
+    /**
+     * <p>Calcula la cantidad de días bisiesto de un año
+     * (asume que el mes es mayor a febrero)</p>
+     * @param year Año
+     * @return Cantidad de dias
+     */
+    private long leapDaysInYear(final long year) {
+        return (year / LEAP_YEAR_INTERVAL)
+                - (year / CENTURY_INTERVAL)
+                + (year / LEAP_CENTURY_INTERVAL);
+    }
+
+    /**
+     * <p>Calcula la cantidad de días entre 2 fechas.</p>
+     * @param other otra fecha.
+     * @return cantidad de días entre 2 fechas
+     */
+    @Override
+    public long daysBetween(final Date other) {
+        return Math.abs(other.numOfDays() - numOfDays());
+    }
+
+
+    /**
+     * <p>Agrega días a una fecha.</p>
+     * @param offset cantidad de días agregados
+     * @return Nueva fecha.
+     */
+    @Override
+    public Date futureDate(final long offset) {
+        checkOffset(offset);
+        return addDays(offset);
+    }
+
+    /**
+     * <p>Substrae días a una fecha.</p>
+     * @param offset cantidad de días agregados
+     * @return Nueva fecha.
+     */
+    @Override
+    public Date pastDate(final long offset) {
+        checkOffset(offset);
+        return addDays(-offset);
+    }
+
+    /**
+     * <p>Verifica que la cantidad de días no sea negativa.</p>
+     * @param offset cantidad de días agregados
+     */
+    private void checkOffset(final long offset) {
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset can't be less than 0");
+        }
+    }
+
+    /**
      * <p>Método hashCode.</p>
      * @return Código hash.
      */
@@ -513,5 +595,4 @@ public final class GregorianDate implements Date {
          result = prime * result + month.toNumber();
          return result;
      }
-
 }
